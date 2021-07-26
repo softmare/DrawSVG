@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "algorithm": "cpp",
+        "compare": "cpp",
+        "fstream": "cpp",
+        "xlocinfo": "cpp"
+    }
+}
