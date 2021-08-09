@@ -296,7 +296,7 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
   xM = max(max(x0,x1),x2);
   ym = min(min(y0,y1),y2);
   yM = max(max(y0,y1),y2);
-  int arr[yM-ym+1][xM-xm+1] = {0,};
+  vector<vector<int> > arr(yM-ym+1, vector<int>(xM-xm+1));
   auto plotLineLow = [&](int x0, int y0, int x1, int y1){
     int dx = x1 -x0, dy = y1 -y0, y;
     int yi = 1;
@@ -334,6 +334,13 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
     if(y0 > y1) plotLineHigh(x1, y1, x0, y0);
     else plotLineHigh(x0, y0, x1, y1);
   }
+
+  int ux = x1-x0, uy = y1-y0, vx = x2-x0, vy = y2-y0;
+  int temp = uy*vx - ux*vy;
+  if(temp < 0) { swap(x1,x2); swap(y1,y2);}
+  auto isIn = [&](int x, int y){
+    // 여기서부터 계속.
+  };
 
   for(int y=ym; y<= yM; y++){
     int isPainting = 0;
