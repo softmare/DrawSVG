@@ -296,58 +296,34 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
   xM = max(max(x0,x1),x2);
   ym = min(min(y0,y1),y2);
   yM = max(max(y0,y1),y2);
-  vector<vector<int> > arr(yM-ym+1, vector<int>(xM-xm+1));
-  auto plotLineLow = [&](int x0, int y0, int x1, int y1){
-    int dx = x1 -x0, dy = y1 -y0, y;
-    int yi = 1;
-    if (dy < 0) { yi = -1; dy = -dy;}
-    int D = 2*dy - dx;
-    y = y0;
-    for(int x=x0; x <= x1; ++x){
-      arr[y-ym][x-xm] += 1;
-      if(D > 0){
-        y += yi;
-        D -= 2*dx;
-      }
-      D += 2*dy;
-    }
+
+  auto Comp = [](float &x0, float &y0, float &x1, float &y1){
+    if(y0 > y1) {swap(x1,x0); swap(y1,y0); return;}
+    if(x0 > x1) {swap(x1,x0); swap(y1,y0); return;}
   };
-  auto plotLineHigh = [&](int x0, int y0, int x1, int y1){
-    int dx = x1 -x0, dy = y1 -y0, x;
-    int xi = 1;
-    if (dx < 0) { xi = -1; dx = -dx;}
-    int D = 2*dx - dy;
-    x = x0;
-    for(int y=y0; y <= y1; ++y){
-      arr[y-ym][x-xm] += 1;
-      if(D > 0){
-        x += xi;
-        D -= 2*dy;
-      }
-      D += 2*dx;
-    }
-  };
-  if(abs(y1-y0) < abs(x1-x0)){
-    if(x0 > x1) plotLineLow(x1, y1, x0, y0);
-    else plotLineLow(x0, y0, x1, y1);
-  }else{
-    if(y0 > y1) plotLineHigh(x1, y1, x0, y0);
-    else plotLineHigh(x0, y0, x1, y1);
-  }
+
+  Comp(x0,y0, x1,y1);
+  Comp(x0,y0, x2,y2);
 
   int ux = x1-x0, uy = y1-y0, vx = x2-x0, vy = y2-y0;
-  int temp = uy*vx - ux*vy;
-  if(temp < 0) { swap(x1,x2); swap(y1,y2);}
+    auto Cross = [&](int ux, int uy, int vx, int vy){
+      return uy*vx - ux*vy;
+    };
+  if(Cross(ux,uy,vx,vy) < 0) { swap(x1,x2); swap(y1,y2);}
   auto isIn = [&](int x, int y){
-    // 여기서부터 계속.
+    const int  vec[3][2] = {{x1-x0,y1-y0},{x2-x1,y2-y1},{x0-x2,y0-y2}};
+    const int dots[3][2] = {{x0,y0},{x1,y1},{x2,y2}};
+    for(int i=0; i<3; ++i){
+      const int ux = vec[i][0], uy = vec[i][1], vx = x - dots[i][0], vy = y - dots[i][1];
+      if(Cross(ux,uy,vx,vy) < 0) return false;
+    }
+    return true;
   };
 
   for(int y=ym; y<= yM; y++){
     int isPainting = 0;
     for(int x=xm; x<=xM; x++){
-      isPainting += arr[ym+y][xm+x];
-      if(isPainting) rasterize_point(x,y, color);
-      if(isPainting == 2) break;
+      if(isIn(x,y)) rasterize_point(x,y,color);
     }
   }
 
