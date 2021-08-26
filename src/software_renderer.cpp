@@ -291,7 +291,7 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               Color color ) {
   // Task 3: 
   // Implement triangle rasterization
-  int xm, xM, ym, yM;
+  float xm, xM, ym, yM;
   xm = min(min(x0,x1),(x2));
   xM = max(max(x0,x1),x2);
   ym = min(min(y0,y1),y2);
@@ -305,25 +305,24 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
   Comp(x0,y0, x1,y1);
   Comp(x0,y0, x2,y2);
 
-  int ux = x1-x0, uy = y1-y0, vx = x2-x0, vy = y2-y0;
-    auto Cross = [&](int ux, int uy, int vx, int vy){
+  float ux = x1-x0, uy = y1-y0, vx = x2-x0, vy = y2-y0;
+    auto Cross = [&](float ux, float uy, float vx, float vy){
       return uy*vx - ux*vy;
     };
   if(Cross(ux,uy,vx,vy) < 0) { swap(x1,x2); swap(y1,y2);}
-  auto isIn = [&](int x, int y){
-    const int  vec[3][2] = {{x1-x0,y1-y0},{x2-x1,y2-y1},{x0-x2,y0-y2}};
-    const int dots[3][2] = {{x0,y0},{x1,y1},{x2,y2}};
+  auto isIn = [&](float x, float y){
+    const float  vec[3][2] = {{x1-x0,y1-y0},{x2-x1,y2-y1},{x0-x2,y0-y2}};
+    const float dots[3][2] = {{x0,y0},{x1,y1},{x2,y2}};
     for(int i=0; i<3; ++i){
-      const int ux = vec[i][0], uy = vec[i][1], vx = x - dots[i][0], vy = y - dots[i][1];
+      const float ux = vec[i][0], uy = vec[i][1], vx = x - dots[i][0], vy = y - dots[i][1];
       if(Cross(ux,uy,vx,vy) < 0) return false;
     }
     return true;
   };
 
-  for(int y=ym; y<= yM; y++){
-    int isPainting = 0;
-    for(int x=xm; x<=xM; x++){
-      if(isIn(x,y)) rasterize_point(x,y,color);
+  for(float y=ym; y<= yM; y++){
+    for(float x=xm; x<=xM; x++){
+      if(isIn(x+0.5f,y+0.5f)) {rasterize_point(x,y,color); rasterize_point(x+1,y+1,color);}
     }
   }
 
