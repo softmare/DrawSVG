@@ -320,9 +320,9 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
     return true;
   };
 
-  for(float y=ym; y<= yM; y++){
-    for(float x=xm; x<=xM; x++){
-      if(isIn(x+0.5f,y+0.5f)) {rasterize_point(x,y,color); rasterize_point(x+1,y+1,color);}
+  for(float y=ym; y<= yM+1; y+=0.5f){
+    for(float x=xm; x<=xM+1; x+=0.5f){
+      if(isIn(x,y)) {rasterize_point(x,y,color);}
     }
   }
 
