@@ -291,11 +291,11 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               Color color ) {
   // Task 3: 
   // Implement triangle rasterization
-  float xm, xM, ym, yM;
+  int xm, xM, ym, yM;
   xm = min(min(x0,x1),(x2));
-  xM = max(max(x0,x1),x2);
+  xM = max(max(x0,x1),x2) + 1;
   ym = min(min(y0,y1),y2);
-  yM = max(max(y0,y1),y2);
+  yM = max(max(y0,y1),y2) + 1;
 
   auto Comp = [](float &x0, float &y0, float &x1, float &y1){
     if(y0 > y1) {swap(x1,x0); swap(y1,y0); return;}
@@ -320,9 +320,9 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
     return true;
   };
 
-  for(float y=ym; y<= yM+1; y+=0.5f){
-    for(float x=xm; x<=xM+1; x+=0.5f){
-      if(isIn(x,y)) {rasterize_point(x,y,color);}
+  for(int y=ym; y<= yM; y++){
+    for(int x=xm; x<=xM; x++){
+      if(isIn(x+0.5f,y+0.5f)) {rasterize_point(x,y,color);}
     }
   }
 
